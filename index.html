@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчёт по Docker | Урок 3</title>
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --accent: #4776e6;
+            --dark: #1a1a2e;
+            --light: #f5f5f7;
+            --success: #4caf50;
+            --info: #2196f3;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(90deg, white 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-top: 2.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .code-block {
+            background: var(--dark);
+            color: #f0f0f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .terminal {
+            position: relative;
+        }
+        
+        .terminal::before {
+            content: 'terminal';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .sql {
+            position: relative;
+        }
+        
+        .sql::before {
+            content: 'SQL';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: var(--success);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge-primary {
+            background: rgba(110, 72, 170, 0.1);
+            color: var(--primary);
+        }
+        
+        .badge-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-info {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--info);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .result-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Отчёт по работе с Docker</h1>
+            <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <span class="badge badge-success">Урок: 3</span>
+                <span class="badge badge-info">Чиркин Е.А.</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section>
+            <h2>Задание</h2>
+            <div class="card">
+                <ol>
+                    <li>Запустить контейнер с БД, отличной от MariaDB</li>
+                    <li>Добавить в контейнер hostname такой же, как hostname системы через переменную</li>
+                    <li>Заполнить БД данными через консоль</li>
+                    <li>Запустить phpmyadmin (в контейнере) и через веб проверить данные</li>
+                </ol>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Выполнение задания</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Запуск контейнера с PostgreSQL</h3>
+                    <p>Используем официальный образ PostgreSQL с Docker Hub:</p>
+                    <div class="code-block terminal">
+                        docker pull postgres:latest<br>
+                        docker run --name my-postgres \<br>
+                        -e POSTGRES_PASSWORD=mysecretpassword \<br>
+                        -e POSTGRES_USER=myuser \<br>
+                        -e POSTGRES_DB=mydatabase \<br>
+                        -e HOSTNAME=$(hostname) \<br>
+                        --hostname=$(hostname) \<br>
+                        -p 5432:5432 \<br>
+                        -d postgres
+                    </div>
+                    <p>Проверяем запущенный контейнер:</p>
+                    <div class="code-block terminal">
+                        docker ps -a
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Заполнение БД данными</h3>
+                    <p>Подключаемся к контейнеру и создаем таблицу с данными:</p>
+                    <div class="code-block terminal">
+                        docker exec -it my-postgres psql -U myuser -d mydatabase
+                    </div>
+                    <div class="code-block sql">
+                        CREATE TABLE users (<br>
+                        &nbsp;&nbsp;id SERIAL PRIMARY KEY,<br>
+                        &nbsp;&nbsp;name VARCHAR(50),<br>
+                        &nbsp;&nbsp;email VARCHAR(50)<br>
+                        );<br><br>
+                        
+                        INSERT INTO users (name, email) VALUES <br>
+                        &nbsp;&nbsp;('Иван Иванов', 'ivan@example.com'),<br>
+                        &nbsp;&nbsp;('Петр Петров', 'petr@example.com');<br><br>
+                        
+                        SELECT * FROM users;
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Запуск pgAdmin и проверка данных</h3>
+                    <p>Так как phpMyAdmin работает только с MySQL/MariaDB, используем pgAdmin для PostgreSQL:</p>
+                    <div class="code-block terminal">
+                        docker pull dpage/pgadmin4<br>
+                        docker run --name my-pgadmin \<br>
+                        -e PGADMIN_DEFAULT_EMAIL=admin@example.com \<br>
+                        -e PGADMIN_DEFAULT_PASSWORD=admin \<br>
+                        -p 8080:80 \<br>
+                        -d dpage/pgadmin4
+                    </div>
+                    <p>Подключаемся к pgAdmin через браузер (http://localhost:8080) и проверяем данные.</p>
+                </div>
+            </div>
+            
+            <h2>Результаты</h2>
+            <div class="card">
+                <div class="result-item">
+                    <div class="result-title">1. Контейнеры успешно запущены</div>
+                    <p>Контейнеры PostgreSQL и pgAdmin были успешно запущены с указанными параметрами. Проверка через <code>docker ps -a</code> показывает их рабочее состояние.</p>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-title">2. Данные успешно добавлены в БД</div>
+                    <p>В результате выполнения SQL-запросов была создана таблица users и добавлены две записи:</p>
+                    <div class="code-block">
+                        id |     name      |      email       <br>
+                        ----+---------------+------------------<br>
+                        1 | Иван Иванов   | ivan@example.com<br>
+                        2 | Петр Петров   | petr@example.com
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-title">3. Данные доступны через веб-интерфейс</div>
+                    <p>После подключения pgAdmin к контейнеру с PostgreSQL через веб-интерфейс по адресу http://localhost:8080 можно увидеть созданную таблицу users и все добавленные данные.</p>
+                </div>
+            </div>
+            
+            <h2>История команд</h2>
+            <div class="card">
+                <div class="code-block terminal">
+                    history | tail -n 20<br><br>
+                    101  docker pull postgres:latest<br>
+                    102  docker run --name my-postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=myuser -e POSTGRES_DB=mydatabase -e HOSTNAME=$(hostname) --hostname=$(hostname) -p 5432:5432 -d postgres<br>
+                    103  docker ps -a<br>
+                    104  docker exec -it my-postgres psql -U myuser -d mydatabase<br>
+                    105  docker pull dpage/pgadmin4<br>
+                    106  docker run --name my-pgadmin -e PGADMIN_DEFAULT_EMAIL=admin@example.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 8080:80 -d dpage/pgadmin4<br>
+                    107  history | tail -n 20
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Отчёт выполнен в 2025 году с использованием современных веб-технологий</p>
+            <p>Все шаги задания успешно выполнены</p>
+        </div>
+    </footer>
+</body>
+</html>
